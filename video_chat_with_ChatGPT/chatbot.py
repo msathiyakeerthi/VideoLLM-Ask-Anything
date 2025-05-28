@@ -1,7 +1,9 @@
 from langchain.agents.initialize import initialize_agent
-from langchain.agents.tools import Tool
+from langchain.tools import Tool
 from langchain.chains.conversation.memory import ConversationBufferMemory
-from langchain.llms.openai import OpenAI
+# from langchain.llms.openai import OpenAI
+from langchain.chat_models import ChatOpenAI
+
 import re
 import gradio as gr
 import openai
@@ -29,13 +31,33 @@ class ConversationBot:
         self.tools = []
 
     def run_text(self, text, state):
-        self.agent.memory.buffer = cut_dialogue_history(self.agent.memory.buffer, keep_last_n_words=500)
+        # self.agent.memory.buffer = cut_dialogue_history(self.agent.memory.buffer, keep_last_n_words=500)
+        # res = self.agent({"input": text.strip()})
+        # res['output'] = res['output'].replace("\\", "/")
+        # response = res['output'] 
+        # state = state + [(text, response)]
+        # print(f"\nProcessed run_text, Input text: {text}\nCurrent state: {state}\n"
+        #       f"Current Memory: {self.agent.memory.buffer}")
+        # return state, state
+
+        # Extract current memory as string
+        memory_str = "\n".join([f"{m.content}" for m in self.agent.memory.chat_memory.messages])
+        
+        # Trim the dialogue history
+        trimmed = cut_dialogue_history(memory_str, keep_last_n_words=500)
+
+        # Rebuild messages list (very basic heuristic: assume all are user/system messages)
+        # A better approach is to track roles from `messages`, not reconstruct like this
+        from langchain.schema import HumanMessage
+        self.agent.memory.chat_memory.messages = [HumanMessage(content=msg) for msg in trimmed.strip().split("\n") if msg]
+
+        # Run the agent
         res = self.agent({"input": text.strip()})
         res['output'] = res['output'].replace("\\", "/")
-        response = res['output'] 
+        response = res['output']
         state = state + [(text, response)]
-        print(f"\nProcessed run_text, Input text: {text}\nCurrent state: {state}\n"
-              f"Current Memory: {self.agent.memory.buffer}")
+
+        print(f"\nProcessed run_text, Input text: {text}\nCurrent state: {state}\n")
         return state, state
 
 
@@ -67,7 +89,9 @@ class ConversationBot:
         self.memory.clear()
         if not openai_api_key.startswith('sk-'):
             return gr.update(visible = False),state, state, "Please paste your key here !"
-        self.llm = OpenAI(temperature=0, openai_api_key=openai_api_key,model_name="gpt-4")
+        # self.llm = OpenAI(temperature=0, openai_api_key=openai_api_key,model_name="gpt-4")
+        self.llm = ChatOpenAI(temperature=0, openai_api_key=openai_api_key, model_name="gpt-4")
+
         # openai.api_base = 'https://api.openai-proxy.com/v1/'  
         self.agent = initialize_agent(
             self.tools,

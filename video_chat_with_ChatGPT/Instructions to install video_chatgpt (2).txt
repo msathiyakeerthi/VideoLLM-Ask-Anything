@@ -1,0 +1,168 @@
+1) mkdir VideoChat
+
+2) cd VideoChat/
+
+
+3) conda env list
+# conda environments:
+#
+base                  *  /home/ubuntu/miniconda3
+chatvideo                /home/ubuntu/miniconda3/envs/chatvideo
+mobile_videogpt          /home/ubuntu/miniconda3/envs/mobile_videogpt
+qwen2vl                  /home/ubuntu/miniconda3/envs/qwen2vl
+video_chatgpt            /home/ubuntu/miniconda3/envs/video_chatgpt
+
+
+4) conda deactivate
+
+5) conda create -n chatvideo python=3.8.16
+WARNING: A conda environment already exists at '/home/ubuntu/miniconda3/envs/chatvideo'
+Remove existing environment (y/[n])? y
+
+Collecting package metadata (current_repodata.json): done
+Solving environment: failed with repodata from current_repodata.json, will retry with next repodata source.
+Collecting package metadata (repodata.json): done
+Solving environment: done
+
+
+==> WARNING: A newer version of conda exists. <==
+  current version: 4.12.0
+  latest version: 25.3.1
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+## Package Plan ##
+
+  environment location: /home/ubuntu/miniconda3/envs/chatvideo
+
+  added / updated specs:
+    - python=3.8.16
+
+
+The following NEW packages will be INSTALLED:
+
+  _libgcc_mutex      pkgs/main/linux-64::_libgcc_mutex-0.1-main
+  _openmp_mutex      pkgs/main/linux-64::_openmp_mutex-5.1-1_gnu
+  ca-certificates    pkgs/main/linux-64::ca-certificates-2025.2.25-h06a4308_0
+  ld_impl_linux-64   pkgs/main/linux-64::ld_impl_linux-64-2.40-h12ee557_0
+  libffi             pkgs/main/linux-64::libffi-3.4.4-h6a678d5_1
+  libgcc-ng          pkgs/main/linux-64::libgcc-ng-11.2.0-h1234567_1
+  libgomp            pkgs/main/linux-64::libgomp-11.2.0-h1234567_1
+  libstdcxx-ng       pkgs/main/linux-64::libstdcxx-ng-11.2.0-h1234567_1
+  ncurses            pkgs/main/linux-64::ncurses-6.4-h6a678d5_0
+  openssl            pkgs/main/linux-64::openssl-3.0.16-h5eee18b_0
+  pip                pkgs/main/linux-64::pip-24.2-py38h06a4308_0
+  python             pkgs/main/linux-64::python-3.8.16-h955ad1f_4
+  readline           pkgs/main/linux-64::readline-8.2-h5eee18b_0
+  setuptools         pkgs/main/linux-64::setuptools-75.1.0-py38h06a4308_0
+  sqlite             pkgs/main/linux-64::sqlite-3.45.3-h5eee18b_0
+  tk                 pkgs/main/linux-64::tk-8.6.14-h39e8969_0
+  wheel              pkgs/main/linux-64::wheel-0.44.0-py38h06a4308_0
+  xz                 pkgs/main/linux-64::xz-5.6.4-h5eee18b_1
+  zlib               pkgs/main/linux-64::zlib-1.2.13-h5eee18b_1
+
+
+Proceed ([y]/n)? y
+
+Preparing transaction: done
+Verifying transaction: done
+Executing transaction: done
+#
+# To activate this environment, use
+#
+#     $ conda activate chatvideo
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+
+
+6) conda activate chatvideo
+
+7) git clone https://github.com/OpenGVLab/Ask-Anything.git
+
+8) cd Ask-Anything/
+
+9) cd video_chat_with_ChatGPT/
+
+
+10) pip install torch==2.2.2+cu121 torchvision==0.17.2+cu121 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121
+11) pip install -r requirements.txt (with below entries in requirements.txt file)
+
+openai==0.27.10
+einops
+gradio==3.38.0
+imageio==2.25.1
+decord
+simplet5
+imageio-ffmpeg
+Pillow
+scipy
+numpy
+openmim
+mmcv-full==1.6.1
+spacy==3.7
+simplet5
+decord
+omegaconf
+lvis
+scipy
+boto3
+jsonschema
+entrypoints
+nltk
+webdataset
+accelerate
+bitsandbytes
+langchain==0.0.101
+timm==0.4.12
+transformers
+fairscale==0.4.4
+pycocoevalcap
+torch==1.13.1
+torchvision==0.14.1
+wget==3.2
+setuptools==59.5.0
+
+12) Repeat step 10 (pip install torch==2.2.2+cu121 torchvision==0.17.2+cu121 torchaudio==2.2.2 --index-url https://download.pytorch.org/whl/cu121)
+
+13) python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'  
+
+14) mkdir pretrained_models
+15) wget -P ./pretrained_models https://huggingface.co/spaces/xinyu1205/Tag2Text/resolve/main/tag2text_swin_14m.pth
+
+16) cd pretrained_models/
+17) wget https://aka.ms/downloadazcopy-v10-linux -O azcopy.tar.gz
+18) tar -xvf azcopy.tar.gz
+19) cd azcopy_linux_amd64_10.29.1/
+
+20) ./azcopy copy "https://datarelease.blob.core.windows.net/grit/models/grit_b_densecap_objectdet.pth?sv=2022-11-02&ss=bfqt&srt=sco&sp=rltfx&se=2026-02-18T03:24:47Z&st=2025-02-17T19:24:47Z&spr=https,http&sig=jmlPNWZ13aswJWnPH%2Fs5CpJOT4wV%2Fvoovp%2Fbf8LMk74%3D" ../ --recursive
+
+21) cd ..
+22) git clone https://huggingface.co/mrm8488/flan-t5-large-finetuned-openai-summarize_from_feedback ./pretrained_models/flan-t5-large-finetuned-openai-summarize_from_feedback  
+23) cd ./pretrained_models/flan-t5-large-finetuned-openai-summarize_from_feedback  
+24) git lfs pull  
+25) cd ../..  
+
+26) pip install torchmetrics==0.6.0
+
+27)  mkdir -p /tmp/huggingface_cache
+     export TRANSFORMERS_CACHE=/tmp/huggingface_cache
+     export MPLCONFIGDIR=/tmp/mpl_cache
+
+28) export OPENAI_API_KEY="API_KEY"
+29) cd /mnt/itcus2/VideoChat/Ask-Anything/video_chat_with_ChatGPT
+
+
+30) pip install --upgrade langchain 
+31) pip install langchain-community
+
+32) python app.py 
+
+
+local termina -- ssh -i "C:\Users\itcus\Downloads\itcusnew3_hyperstack.txt" -L 7861:localhost:7860 ubuntu@185.216.22.87 (Type this command in local terminal)
+
+Launch http://localhost:7861/
